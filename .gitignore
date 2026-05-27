@@ -1,0 +1,41 @@
+# --- Build Artifacts ---
+target/
+build/
+out/
+bin/
+*.class
+*.jar
+*.war
+*.ear
+
+# --- IDE Settings ---
+# IntelliJ IDEA
+.idea/
+*.iws
+*.iml
+*.ipr
+
+# Eclipse
+.project
+.classpath
+.settings/
+.factorypath
+.springBeans
+
+# VS Code
+.vscode/
+
+# --- Spring Boot & Tools ---
+.sts4-cache/
+logs/
+*.log
+
+# --- Environment & Sensitive Data ---
+.env
+.env.local
+application-local.properties
+application-local.yml
+
+# --- System Files ---
+.DS_Store
+Thumbs.db
