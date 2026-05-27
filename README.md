@@ -11,65 +11,8 @@ This project demonstrates a simple microservices architecture using:
 
 # Architecture Overview
 
-```text
-                        +----------------------+
-                        |   Eureka Server      |
-                        |  Service Registry    |
-                        |      Port 8761       |
-                        +----------+-----------+
-                                   ^
-                                   |
-                    Service Registration & Discovery
-                                   |
-        -------------------------------------------------
-        |                                               |
-        |                                               |
-+-------+--------+                         +------------+-----------+
-|   API Gateway  |                         |    Content Service     |
-|  Spring WebFlux|                         |      REST Service      |
-|    Port 8001   |------------------------>|       Port 8002        |
-|                |    Route Request        |  Context: /content     |
-+-------+--------+                         +------------+-----------+
-        ^
-        |
-        |
-+-------+--------+
-|     Client     |
-|  Browser/Postman|
-+----------------+
+<img width="1536" height="1024" alt="ChatGPT Image May 27, 2026, 08_30_19 PM" src="https://github.com/user-attachments/assets/27670cc9-e2e5-45c6-bdbf-57b4f12cc172" />
 
-```
-
----
-
-# Request Flow
-
-```text
-Client
-   |
-   |  GET /content/welcome
-   v
-API Gateway (8001)
-   |
-   |  Discover CONTENT service from Eureka
-   v
-Eureka Server (8761)
-   |
-   |  Returns CONTENT service instance
-   v
-API Gateway
-   |
-   |  Forward Request
-   v
-Content Service (8002)
-   |
-   |  Response: Welcome Message
-   v
-API Gateway
-   |
-   v
-Client
-```
 
 ---
 
