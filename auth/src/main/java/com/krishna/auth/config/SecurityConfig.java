@@ -2,6 +2,8 @@ package com.krishna.auth.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.core.userdetails.User;
@@ -18,14 +20,14 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                .csrf(csrf -> csrf.disable()) // Disable CSRF for non-browser/REST API clients
+                .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/public/**").permitAll()                  // Anyone can access
-                        .requestMatchers("/api/admin/**").hasRole("ADMIN")             // Admin only
-                        .requestMatchers("/api/user/**").hasAnyRole("USER", "ADMIN")   // User or Admin
-                        .anyRequest().authenticated()                                  // Lock everything else
+                        .requestMatchers("/public/**").permitAll()
+                        .requestMatchers("/api/admin/**").hasRole("ADMIN")
+                        .requestMatchers("/api/user/**").hasAnyRole("USER", "ADMIN")
+                        .anyRequest().authenticated()
                 )
-                .httpBasic(basic -> {}); // Enable basic popup authentication for testing
+                .httpBasic(basic -> {});
 
         return http.build();
     }
@@ -46,7 +48,15 @@ public class SecurityConfig {
     }
 
     @Bean
+    public AuthenticationManager authenticationManager(
+            AuthenticationConfiguration configuration)
+            throws Exception {
+
+        return configuration.getAuthenticationManager();
+    }
+
+    @Bean
     public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder(); // Securely hash passwords
+        return new BCryptPasswordEncoder();
     }
 }

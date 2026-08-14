@@ -17,6 +17,7 @@ spring:
                 - Path=/content/**
               filters:
                 - StripPrefix=0
+                - name: JWTAuthFilter
 
 eureka:
   client:
