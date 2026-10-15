@@ -18,11 +18,6 @@ The flow is:
 
 Client -> API Gateway -> Eureka Service Discovery -> Content Service -> Response
 
-In this demo:
-- The Gateway listens on port 8001
-- Eureka runs on port 8761
-- The Content service runs on port 8002
-
 ---
 
 ## Services
@@ -30,22 +25,6 @@ In this demo:
 ### 1) Eureka Service Registry
 
 This acts as the central registry where services register themselves.
-
-Configuration:
-
-```yaml
-server:
-  port: 8761
-
-spring:
-  application:
-    name: service-registry
-
-eureka:
-  client:
-    register-with-eureka: false
-    fetch-registry: false
-```
 
 Dashboard:
 
@@ -59,77 +38,25 @@ http://localhost:8761
 
 The gateway receives incoming traffic and routes it to registered services using Spring Cloud Gateway.
 
-Example configuration:
-
-```yaml
-server:
-  port: 8001
-
-spring:
-  main:
-    web-application-type: reactive
-
-  application:
-    name: api-gateway
-
-  cloud:
-    gateway:
-      routes:
-        - id: content-service
-          uri: lb://CONTENT
-          predicates:
-            - Path=/content/**
-          filters:
-            - StripPrefix=0
-
-eureka:
-  client:
-    service-url:
-      defaultZone: http://localhost:8761/eureka/
+```bash
+http://localhost:8001
 ```
-
-Key idea:
-- `lb://CONTENT` tells the gateway to resolve the service from Eureka using load balancing.
-- `Path=/content/**` matches requests such as `/content/welcome`.
-
 ---
 
-### 3) Content Service
+### 3) Auth Service
+
+This service is used to login and verify token.
+
+```bash
+http://localhost:8001/auth/
+```
+
+### 4) Content Service
 
 This service is a simple REST service registered in Eureka.
 
-Example configuration:
-
-```yaml
-server:
-  port: 8002
-  servlet:
-    context-path: /content
-
-spring:
-  application:
-    name: content
-
-eureka:
-  client:
-    service-url:
-      defaultZone: http://localhost:8761/eureka/
-    instance:
-      preferIpAddress: true
-```
-
-Sample controller:
-
-```java
-@RestController
-@RequestMapping("/content")
-public class ContentController {
-
-    @GetMapping("/welcome")
-    public String welcome() {
-        return "Welcome to Content Service!";
-    }
-}
+```bash
+http://localhost:8001/content/
 ```
 
 ---
@@ -140,71 +67,16 @@ Start in this order:
 
 1. Eureka Service Registry
 2. Content Service
-3. API Gateway
-
-### 1. Start Eureka
-
-```bash
-http://localhost:8761
-```
-
-### 2. Start Content Service
-
-The service registers itself in Eureka as:
-
-```text
-CONTENT
-```
-
-### 3. Start API Gateway
-
-The gateway connects to Eureka and finds the content service dynamically.
-
-### 4. Send a request
-
-```bash
-curl http://localhost:8001/content/welcome
-```
-
-Expected response:
-
-```text
-Welcome to Content Service!
-```
-
----
-
-## Internal flow
-
-```text
-Client Request
-    |
-    v
-Gateway Route Matching
-    |
-    v
-Eureka Discovery Client
-    |
-    v
-Resolve CONTENT Instance
-    |
-    v
-Forward Request
-    |
-    v
-Content Service Response
-```
-
----
+3. Auth Service
+4. API Gateway
 
 ## Technology stack
 
 - Java 17+
 - Spring Boot
-- Spring Cloud Gateway
-- Spring WebFlux
+- Spring Cloud Starter Gateway Server Webmvc
 - Netflix Eureka
-- Maven / Gradle
+- Gradle
 
 ---
 
@@ -218,7 +90,7 @@ Content Service Response
 
 ---
 
-## Suggested future improvements
+## Future improvements
 
 - JWT authentication
 - Spring Cloud Config Server
