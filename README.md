@@ -1,28 +1,37 @@
-# Spring Cloud Microservices Demo
+# Spring Cloud Microservice Demo
 
-This project demonstrates a simple microservices architecture using:
+A simple microservices example built with Spring Boot and Spring Cloud. It shows how a gateway can discover and route requests to backend services using Eureka service discovery.
 
-- Spring Cloud Gateway (WebFlux)
-- Eureka Service Registry
-- Content Microservice
-- Reactive Routing with Load Balancing
+## What this project demonstrates
 
----
-
-# Architecture Overview
-
-<img width="1536" height="1024" alt="ChatGPT Image May 27, 2026, 08_30_19 PM" src="https://github.com/user-attachments/assets/27670cc9-e2e5-45c6-bdbf-57b4f12cc172" />
-
+- Spring Cloud Gateway as the entry point
+- Netflix Eureka as the service registry
+- A Content microservice that exposes a REST API
+- Service discovery and load-balanced routing
+- A minimal architecture for learning microservices patterns
 
 ---
 
-# Services
+## Architecture
 
-## 1. Eureka Service Registry
+The flow is:
 
-Acts as the central registry where all services register themselves.
+Client -> API Gateway -> Eureka Service Discovery -> Content Service -> Response
 
-### Configuration
+In this demo:
+- The Gateway listens on port 8001
+- Eureka runs on port 8761
+- The Content service runs on port 8002
+
+---
+
+## Services
+
+### 1) Eureka Service Registry
+
+This acts as the central registry where services register themselves.
+
+Configuration:
 
 ```yaml
 server:
@@ -38,7 +47,7 @@ eureka:
     fetch-registry: false
 ```
 
-### Access Eureka Dashboard
+Dashboard:
 
 ```bash
 http://localhost:8761
@@ -46,18 +55,11 @@ http://localhost:8761
 
 ---
 
-## 2. API Gateway (Spring Cloud Gateway WebFlux)
+### 2) API Gateway
 
-Handles all incoming requests and routes them to downstream services.
+The gateway receives incoming traffic and routes it to registered services using Spring Cloud Gateway.
 
-### Features
-
-- Reactive WebFlux Gateway
-- Service Discovery using Eureka
-- Load Balanced Routing
-- Route Predicates & Filters
-
-### Configuration
+Example configuration:
 
 ```yaml
 server:
@@ -72,47 +74,35 @@ spring:
 
   cloud:
     gateway:
-      server:
-        webflux:
-          routes:
-            - id: content-service
-              uri: lb://CONTENT
-              predicates:
-                - Path=/content/**
-              filters:
-                - StripPrefix=0
+      routes:
+        - id: content-service
+          uri: lb://CONTENT
+          predicates:
+            - Path=/content/**
+          filters:
+            - StripPrefix=0
 
 eureka:
   client:
     service-url:
       defaultZone: http://localhost:8761/eureka/
-
-logging:
-  level:
-    org.springframework.cloud.gateway.server.webflux: TRACE
-    org.springframework.cloud.gateway: TRACE
 ```
 
-### Route Explanation
-
-| Property | Description |
-|---|---|
-| `lb://CONTENT` | Load balanced Eureka service lookup |
-| `Path=/content/**` | Match incoming `/content` requests |
-| `StripPrefix=0` | Keeps original request path |
+Key idea:
+- `lb://CONTENT` tells the gateway to resolve the service from Eureka using load balancing.
+- `Path=/content/**` matches requests such as `/content/welcome`.
 
 ---
 
-## 3. Content Service
+### 3) Content Service
 
-Simple REST microservice registered with Eureka.
+This service is a simple REST service registered in Eureka.
 
-### Configuration
+Example configuration:
 
 ```yaml
 server:
   port: 8002
-
   servlet:
     context-path: /content
 
@@ -123,13 +113,12 @@ spring:
 eureka:
   client:
     service-url:
-      defaultZone : http://localhost:8761/eureka/
-
+      defaultZone: http://localhost:8761/eureka/
     instance:
       preferIpAddress: true
 ```
 
-### Sample Controller
+Sample controller:
 
 ```java
 @RestController
@@ -145,43 +134,47 @@ public class ContentController {
 
 ---
 
-# How It Works
+## Run the project
 
-## Step 1 — Start Eureka Server
+Start in this order:
+
+1. Eureka Service Registry
+2. Content Service
+3. API Gateway
+
+### 1. Start Eureka
 
 ```bash
 http://localhost:8761
 ```
 
-All services register here.
+### 2. Start Content Service
 
----
-
-## Step 2 — Start Content Service
-
-The Content Service registers itself in Eureka as:
+The service registers itself in Eureka as:
 
 ```text
 CONTENT
 ```
 
----
+### 3. Start API Gateway
 
-## Step 3 — Start API Gateway
+The gateway connects to Eureka and finds the content service dynamically.
 
-Gateway connects to Eureka and dynamically discovers services.
+### 4. Send a request
 
----
+```bash
+curl http://localhost:8001/content/welcome
+```
 
-## Step 4 — Send Request
+Expected response:
 
-```http
-GET http://localhost:8001/content/welcome
+```text
+Welcome to Content Service!
 ```
 
 ---
 
-# Internal Flow
+## Internal flow
 
 ```text
 Client Request
@@ -204,26 +197,7 @@ Content Service Response
 
 ---
 
-# Expected Response
-
-```text
-Welcome to Content Service!
-```
-
----
-
-# Service Registration Example
-
-Inside Eureka Dashboard:
-
-| Application | Instances |
-|---|---|
-| API-GATEWAY | localhost:8001 |
-| CONTENT | localhost:8002 |
-
----
-
-# Technology Stack
+## Technology stack
 
 - Java 17+
 - Spring Boot
@@ -234,49 +208,27 @@ Inside Eureka Dashboard:
 
 ---
 
-# Advantages of This Architecture
+## Why this architecture is useful
 
-- Centralized Routing
-- Dynamic Service Discovery
-- Scalable Microservices
-- Load Balancing
-- Reactive Non-Blocking Gateway
-- Easy Service Management
-
----
-
-# Run Order
-
-Start services in this order:
-
-```text
-1. Eureka Server
-2. Content Service
-3. API Gateway
-```
+- Centralized routing
+- Dynamic service discovery
+- Better separation of concerns
+- Load balancing support
+- Simple microservice learning model
 
 ---
 
-# Test Using CURL
+## Suggested future improvements
 
-```bash
-curl http://localhost:8001/content/welcome
-```
-
----
-
-# Future Enhancements
-
-- JWT Authentication
-- Config Server
-- Distributed Tracing
-- Resilience4j Circuit Breaker
-- Docker & Kubernetes Deployment
-- Multiple Content Service Instances
-- API Rate Limiting
+- JWT authentication
+- Spring Cloud Config Server
+- Distributed tracing
+- Resilience4j circuit breaker
+- Docker and Kubernetes deployment
+- API gateway rate limiting
 
 ---
 
-# Author
+## Author
 
 Krishnamoorthy
