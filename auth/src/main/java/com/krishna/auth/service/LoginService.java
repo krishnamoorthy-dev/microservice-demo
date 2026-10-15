@@ -26,7 +26,7 @@ public class LoginService {
                             loginRequestDTO.getPassword()
                     )
             );
-            loginResponseDTO.setToken(JWTUtil.createToken());
+            loginResponseDTO.setToken(JWTUtil.createToken(loginRequestDTO.getUserName()));
         } catch (AuthenticationException e) {
             log.error("Authentication failed!", e);
         }
